@@ -150,7 +150,7 @@ Analyze a resume against a job description.
 curl -X POST http://localhost:8000/api/v1/analyze \
   -H "Content-Type: application/json" \
   -d '{
-    "resume_text": "Experienced software engineer with 5+ years building scalable backend systems. Proficient in Python, FastAPI, Django, PostgreSQL, Docker, AWS, and CI/CD pipelines. Led a team of 4 engineers to deliver a real-time analytics platform processing 1M events/day. Implemented microservices architecture reducing deployment time by 60%. Bachelor'\''s in Computer Science from MIT.",
+    "resume_text": "Experienced software engineer with 5+ years building scalable backend systems. Proficient in Python, FastAPI, Django, PostgreSQL, Docker, AWS, and CI/CD pipelines. Led a team of 4 engineers to deliver a real-time analytics platform processing 1M events/day. Implemented microservices architecture reducing deployment time by 60%. Bachelor's in Computer Science from MIT.",
     "job_description": "We are looking for a Senior Backend Engineer with expertise in Python, REST APIs, microservices architecture, and cloud infrastructure (AWS/GCP). Experience with Kubernetes, Terraform, and observability tools (Datadog, Grafana) is highly desired. Must have 5+ years of experience and strong system design skills."
   }'
 ```
@@ -266,7 +266,7 @@ All settings are configured via environment variables (`.env` file):
 ```bash
 # Create virtual environment
 python -m venv venv
-venv\Scripts\activate  # Windows
+vv\Scripts\activate  # Windows
 # source venv/bin/activate  # macOS/Linux
 
 # Install dependencies
@@ -349,6 +349,3 @@ The API returns consistent error responses:
 ## 📝 License
 
 MIT License — feel free to use this in your projects.
-#   A I - R e s u m e - S c r e e n e r - A P I  
- #   A I - R e s u m e - S c r e e n e r - A P I  
- 
