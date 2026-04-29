@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ResumeAI</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); padding: 20px; }
+        .auth-card { width: 100%; max-width: 400px; padding: 40px; }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-form { display: flex; flex-direction: column; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: .85rem; font-weight: 600; color: var(--text-secondary); }
+        .form-group input { background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; color: var(--text-primary); outline: none; }
+        .form-group input:focus { border-color: var(--accent); }
+        .auth-footer { text-align: center; margin-top: 20px; font-size: .9rem; color: var(--text-muted); }
+        .auth-footer a { color: var(--accent-light); font-weight: 600; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="glass-card auth-card">
+            <div class="auth-header">
+                <h1 class="gradient-text" style="font-size: 2rem; margin-bottom: 10px;">Create Account</h1>
+                <p>Start optimizing your career today</p>
+            </div>
+            <form class="auth-form" id="signup-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="full_name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary full-width" id="submit-btn">Create Account</button>
+            </form>
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const form = document.getElementById('signup-form');
+        const btn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btn.disabled = true;
+            btn.textContent = "Creating Account...";
+
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || "Signup failed");
+                }
+
+                // Show Success Toast and Redirect
+                showToast("Account created successfully. Please log in.");
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+
+            } catch (err) {
+                alert(err.message);
+                btn.disabled = false;
+                btn.textContent = "Create Account";
+            }
+        });
+
+        function showToast(msg) {
+            const container = document.createElement('div');
+            container.className = 'toast-container';
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            container.appendChild(toast);
+            document.body.appendChild(container);
+        }
+    </script>
+</body>
+</html>

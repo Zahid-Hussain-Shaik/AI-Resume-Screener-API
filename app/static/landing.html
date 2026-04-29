@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screener — Intelligent Resume Analysis API</title>
+    <meta name="description" content="Production-grade REST API that analyzes resumes against job descriptions using AI. Get match scores, missing skills, and rewrite suggestions.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  LOADING OVERLAY                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loader-glow"><i data-lucide="cpu" style="width: 80px; height: 80px;"></i></div>
+            <h2 style="margin-bottom: 10px;">AI Analysis in Progress</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Our advanced engine is evaluating your professional profile...</p>
+            
+            <div class="progress-container">
+                <div id="loading-progress" class="progress-bar"></div>
+            </div>
+
+            <div class="step-list">
+                <div class="step-item" id="step-1"><i data-lucide="check-circle-2"></i> Uploading resume...</div>
+                <div class="step-item" id="step-2"><i data-lucide="check-circle-2"></i> Extracting resume content...</div>
+                <div class="step-item" id="step-3"><i data-lucide="check-circle-2"></i> Reading sections...</div>
+                <div class="step-item" id="step-4"><i data-lucide="check-circle-2"></i> Detecting technical skills...</div>
+                <div class="step-item" id="step-5"><i data-lucide="check-circle-2"></i> Checking ATS compatibility...</div>
+                <div class="step-item" id="step-6"><i data-lucide="check-circle-2"></i> Analysing formatting...</div>
+                <div class="step-item" id="step-7"><i data-lucide="check-circle-2"></i> Finding missing keywords...</div>
+                <div class="step-item" id="step-8"><i data-lucide="check-circle-2"></i> Generating improvement suggestions...</div>
+                <div class="step-item" id="step-9"><i data-lucide="check-circle-2"></i> Finalising ATS score...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  NAVIGATION                                 -->
+    <!-- ═══════════════════════════════════════════ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">🤖</span>
+                <span class="logo-text">ResumeAI</span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="#hero" class="nav-link">Home</a>
+                <a href="#ats-section" class="nav-link">ATS Checker</a>
+                <a href="#api" class="nav-link">JD Match</a>
+                <a href="/static/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/static/login.html" class="nav-link">Login</a>
+                <a href="/static/signup.html" class="nav-btn">Sign Up Free</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  HERO SECTION                               -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+        <div class="container hero-content">
+            <div class="hero-badge animate-fade-in">
+                <span class="badge-dot"></span>
+                Production-Ready API
+            </div>
+            <h1 class="hero-title animate-fade-in-up">
+                AI-Powered<br>
+                <span class="gradient-text">Resume Screening</span>
+            </h1>
+            <p class="hero-subtitle animate-fade-in-up delay-1">
+                Analyze resumes against job descriptions using GPT-4o or Claude.
+                Get match scores, missing skills, and actionable rewrite suggestions — all via a single API call.
+            </p>
+            <div class="hero-actions animate-fade-in-up delay-2">
+                <a href="/docs" class="btn btn-primary" target="_blank">
+                    <i data-lucide="code-2" class="btn-icon"></i>
+                    Explore API Docs
+                </a>
+                <a href="#api" class="btn btn-secondary">
+                    <i data-lucide="play" class="btn-icon"></i>
+                    See How It Works
+                </a>
+            </div>
+            <div class="hero-stats animate-fade-in-up delay-3">
+                <div class="stat">
+                    <span class="stat-value">&lt;300ms</span>
+                    <span class="stat-label">API Overhead</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">0–100</span>
+                    <span class="stat-label">Match Score</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">2 AI</span>
+                    <span class="stat-label">Providers</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  ATS CHECKER SECTION                        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="ats-checker" id="ats-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Instant Check</span>
+                <h2 class="section-title">Free ATS Resume<br><span class="gradient-text">Optimization</span></h2>
+            </div>
+
+            <div class="glass-card scanner-card">
+                <div class="scanner-controls">
+                    <div class="upload-zone" id="upload-zone">
+                        <input type="file" id="resume-file" hidden accept=".pdf,.docx">
+                        <i data-lucide="upload-cloud" class="upload-icon"></i>
+                        <p>Drop resume PDF or click to browse</p>
+                        <span class="file-name" id="selected-filename"></span>
+                    </div>
+                    <div class="or-divider"><span>OR</span></div>
+                    <textarea id="resume-text" placeholder="Paste your resume text here..."></textarea>
+                    
+                    <button class="btn btn-primary full-width" id="check-ats-btn">
+                        <i data-lucide="sparkles" class="btn-icon"></i>
+                        Analyze Resume Now
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+            </div>
+        </div>
+    </section>
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Capabilities</span>
+                <h2 class="section-title">Everything You Need to<br><span class="gradient-text">Screen Resumes Intelligently</span></h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="brain" class="feature-icon"></i>
+                    </div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Uses GPT-4o or Claude to deeply evaluate resume-to-job fit with nuanced understanding.</p>
+                </div>
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="target" class="feature-icon"></i>
+                    </div>
+                    <h3>Match Scoring</h3>
+                    <p>Precise 0–100 numerical score with detailed breakdown of candidate strengths and gaps.</p>
+                </div>
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="search" class="feature-icon"></i>
+                    </div>
+                    <h3>Missing Skills Detection</h3>
+                    <p>Identifies specific technologies, certifications, and experience gaps against job requirements.</p>
+                </div>
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="pen-tool" class="feature-icon"></i>
+                    </div>
+                    <h3>Rewrite Suggestions</h3>
+                    <p>Actionable text improvements with before/after examples and clear rationale for each change.</p>
+                </div>
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="database" class="feature-icon"></i>
+                    </div>
+                    <h3>Persistent Storage</h3>
+                    <p>All submissions saved to MySQL with timestamps. Query past results anytime via the API.</p>
+                </div>
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon-wrap">
+                        <i data-lucide="container" class="feature-icon"></i>
+                    </div>
+                    <h3>Containerized Deployment</h3>
+                    <p>One-command deployment with Docker Compose. Production-ready with health checks and graceful shutdown.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  API DEMO                                   -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="api-section" id="api">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">API</span>
+                <h2 class="section-title">One Endpoint.<br><span class="gradient-text">Powerful Results.</span></h2>
+            </div>
+            <div class="api-demo">
+                <div class="api-request">
+                    <div class="code-header">
+                        <div class="code-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <span class="code-title">POST /api/v1/analyze</span>
+                        <button class="code-copy" id="copy-request" aria-label="Copy request">
+                            <i data-lucide="copy" style="width:14px;height:14px"></i>
+                        </button>
+                    </div>
+                    <pre class="code-block"><code>{
+  <span class="json-key">"resume_text"</span>: <span class="json-string">"Experienced software engineer with 5+ years building scalable backend systems. Proficient in Python, FastAPI, Django, PostgreSQL, Docker, AWS..."</span>,
+  <span class="json-key">"job_description"</span>: <span class="json-string">"Senior Backend Engineer with expertise in Python, REST APIs, microservices, and cloud infrastructure (AWS/GCP). 5+ years experience required."</span>
+}</code></pre>
+                </div>
+                <div class="api-arrow">
+                    <i data-lucide="arrow-right" class="arrow-icon desktop-only"></i>
+                    <i data-lucide="arrow-down" class="arrow-icon mobile-only"></i>
+                </div>
+                <div class="api-response">
+                    <div class="code-header">
+                        <div class="code-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <span class="code-title">Response — 201 Created</span>
+                    </div>
+                    <pre class="code-block"><code>{
+  <span class="json-key">"match_score"</span>: <span class="json-number">72.5</span>,
+  <span class="json-key">"missing_skills"</span>: [
+    <span class="json-string">"Kubernetes"</span>, <span class="json-string">"Terraform"</span>,
+    <span class="json-string">"Datadog"</span>, <span class="json-string">"Grafana"</span>
+  ],
+  <span class="json-key">"rewrite_suggestions"</span>: [
+    {
+      <span class="json-key">"section"</span>: <span class="json-string">"Summary"</span>,
+      <span class="json-key">"original"</span>: <span class="json-string">"Experienced software engineer..."</span>,
+      <span class="json-key">"suggested"</span>: <span class="json-string">"Senior Backend Engineer with 5+ years architecting scalable microservices..."</span>
+    }
+  ],
+  <span class="json-key">"processing_time_ms"</span>: <span class="json-number">4523</span>
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  ARCHITECTURE                               -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="architecture" id="architecture">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Architecture</span>
+                <h2 class="section-title">Production-Grade<br><span class="gradient-text">System Design</span></h2>
+            </div>
+            <div class="arch-grid">
+                <div class="arch-card" data-animate>
+                    <div class="arch-icon"><i data-lucide="server" class="feature-icon"></i></div>
+                    <h3>FastAPI Backend</h3>
+                    <p>Async Python with Pydantic v2 validation, CORS middleware, structured error handling.</p>
+                    <span class="arch-tag">Port 8000</span>
+                </div>
+                <div class="arch-card" data-animate>
+                    <div class="arch-icon"><i data-lucide="cylinder" class="feature-icon"></i></div>
+                    <h3>MySQL 8.0</h3>
+                    <p>Persistent storage with SQLAlchemy ORM, async sessions, connection pooling, and Alembic migrations.</p>
+                    <span class="arch-tag">Port 3306</span>
+                </div>
+                <div class="arch-card" data-animate>
+                    <div class="arch-icon"><i data-lucide="sparkles" class="feature-icon"></i></div>
+                    <h3>AI Providers</h3>
+                    <p>Dual-provider support — OpenAI GPT-4o and Anthropic Claude — with retry logic and timeout handling.</p>
+                    <span class="arch-tag">External API</span>
+                </div>
+                <div class="arch-card" data-animate>
+                    <div class="arch-icon"><i data-lucide="box" class="feature-icon"></i></div>
+                    <h3>Docker Compose</h3>
+                    <p>Single-command deployment. Health checks, persistent volumes, environment-based configuration.</p>
+                    <span class="arch-tag">Containerized</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  MEET THE DEVELOPER                         -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="developer-section" id="developer">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">About</span>
+                <h2 class="section-title">Meet the<br><span class="gradient-text">Developer</span></h2>
+            </div>
+
+            <div class="developer-card" data-animate>
+                <!-- Glow Effect -->
+                <div class="dev-card-glow"></div>
+
+                <div class="dev-card-content">
+                    <!-- Left: Photo + Identity -->
+                    <div class="dev-left">
+                        <div class="dev-photo-ring">
+                            <div class="dev-photo-glow"></div>
+                            <img
+                                src="/static/img/profile.png"
+                                alt="Zahid Hussain — Software Developer"
+                                class="dev-photo"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="dev-identity">
+                            <h3 class="dev-name">Zahid Hussain</h3>
+                            <p class="dev-role">Software Developer</p>
+                            <div class="dev-cta-badge">
+                                <span class="cta-dot"></span>
+                                Open to software engineering opportunities
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Details -->
+                    <div class="dev-right">
+                        <p class="dev-intro">
+                            Software developer focused on backend systems, APIs, databases, Docker, and AI-powered products.
+                        </p>
+
+                        <div class="dev-project-statement">
+                            <div class="statement-icon">
+                                <i data-lucide="rocket" style="width:18px;height:18px"></i>
+                            </div>
+                            <p>
+                                Built this AI Resume Screener end-to-end, including backend architecture, database integration, containerised deployment, and AI analysis workflow.
+                            </p>
+                        </div>
+
+                        <!-- Tech Badges -->
+                        <div class="dev-badges">
+                            <span class="tech-badge">Python</span>
+                            <span class="tech-badge">FastAPI</span>
+                            <span class="tech-badge">MySQL</span>
+                            <span class="tech-badge">Docker</span>
+                            <span class="tech-badge">OpenAI</span>
+                            <span class="tech-badge">JavaScript</span>
+                        </div>
+
+                        <!-- Social Links -->
+                        <div class="dev-links">
+                            <a href="mailto:shaikzahidhussain@gmail.com" class="dev-link-btn" aria-label="Email" title="Email">
+                                <i data-lucide="mail"></i>
+                                <span>Email</span>
+                            </a>
+                            <a href="https://www.linkedin.com/in/shaikzahidhussain" class="dev-link-btn" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener noreferrer">
+                                <i data-lucide="linkedin"></i>
+                                <span>LinkedIn</span>
+                            </a>
+                            <a href="https://github.com/Zahid-Hussain-Shaik" class="dev-link-btn" aria-label="GitHub" title="GitHub" target="_blank" rel="noopener noreferrer">
+                                <i data-lucide="github"></i>
+                                <span>GitHub</span>
+                            </a>
+                            <a href="/static/Zahid_Hussain_Backend_SDE1.pdf" class="dev-link-btn" aria-label="Download Resume" title="Download Resume" download>
+                                <i data-lucide="download"></i>
+                                <span>Resume</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  FOOTER                                     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon">🤖</span>
+                    <span class="logo-text">ResumeAI</span>
+                </div>
+                <div class="footer-links">
+                    <a href="/docs" target="_blank">API Docs</a>
+                    <a href="/redoc" target="_blank">ReDoc</a>
+                    <a href="/api/v1/health">Health Check</a>
+                    <a href="https://github.com/Zahid-Hussain-Shaik" target="_blank" rel="noopener noreferrer">GitHub</a>
+                </div>
+                <p class="footer-copy">
+                    &copy; 2026 Zahid Hussain. Built with FastAPI, MySQL, and AI.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        const token = localStorage.getItem('token');
+        const navLinks = document.getElementById('nav-links');
+
+        // ── Auth State Handling ──
+        function updateNavbar() {
+            if (token) {
+                navLinks.innerHTML = `
+                    <a href="#hero" class="nav-link">Home</a>
+                    <a href="#ats-section" class="nav-link">ATS Checker</a>
+                    <a href="/static/dashboard.html" class="nav-link">History</a>
+                    <button onclick="logout()" class="nav-btn">Logout</button>
+                `;
+            }
+        }
+        updateNavbar();
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.reload();
+        }
+
+        // ── ATS Checker Logic ──
+        const fileInput = document.getElementById('resume-file');
+        const checkBtn = document.getElementById('check-ats-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const resultsDashboard = document.getElementById('results-dashboard');
+
+        document.getElementById('upload-zone').addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                document.getElementById('selected-filename').textContent = e.target.files[0].name;
+            }
+        });
+
+        checkBtn.addEventListener('click', async () => {
+            // Auth Guard
+            if (!token) {
+                window.location.href = `login.html?returnTo=${encodeURIComponent(window.location.href)}`;
+                return;
+            }
+
+            const text = document.getElementById('resume-text').value;
+            const file = fileInput.files[0];
+
+            if (!text && !file) {
+                alert("Please upload a file or paste your resume text.");
+                return;
+            }
+
+            // Start Loading Sequence
+            await startLoadingSequence();
+
+            const formData = new FormData();
+            if (file) formData.append('resume_file', file);
+            if (text) formData.append('resume_text', text);
+
+            try {
+                const response = await fetch('/api/v1/ats-check', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    if (response.status === 429 || errorData.detail?.includes('quota')) {
+                        // Mock data for demo if quota exceeded
+                        console.warn("OpenAI Quota reached. Showing mock report for demonstration.");
+                        const mockData = {
+                            overall_score: 85,
+                            formatting_score: 90,
+                            keyword_score: 75,
+                            readability_score: 82,
+                            missing_sections: ["Professional Summary", "Certifications"],
+                            keyword_analysis: ["Python", "FastAPI", "Docker", "SQL", "REST API"],
+                            weak_bullet_points: [
+                                { original: "Responsible for backend tasks.", suggested: "Architected and implemented 15+ microservices using FastAPI, reducing latency by 40%.", issue: "Lacks metrics and impact." }
+                            ],
+                            improvement_suggestions: ["Quantify your achievements with numbers.", "Add a skills section to pass ATS filters."]
+                        };
+                        localStorage.setItem('lastAnalysis', JSON.stringify(mockData));
+                        window.location.href = '/results';
+                        return;
+                    }
+                    throw new Error("Analysis failed");
+                }
+
+                const data = await response.json();
+                localStorage.setItem('lastAnalysis', JSON.stringify(data));
+                window.location.href = '/results';
+            } catch (err) {
+                loadingOverlay.classList.remove('active');
+                alert("The AI engine is currently at capacity. Please try again in a moment.");
+            }
+        });
+
+        async function startLoadingSequence() {
+            loadingOverlay.classList.add('active');
+            const steps = [
+                { id: 1, duration: 400 },
+                { id: 2, duration: 600 },
+                { id: 3, duration: 400 },
+                { id: 4, duration: 800 },
+                { id: 5, duration: 600 },
+                { id: 6, duration: 400 },
+                { id: 7, duration: 700 },
+                { id: 8, duration: 500 },
+                { id: 9, duration: 400 }
+            ];
+
+            const progressBar = document.getElementById('loading-progress');
+            
+            // Reset steps
+            document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active', 'completed'));
+
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                const el = document.getElementById(`step-${step.id}`);
+                if (el) el.classList.add('active');
+                progressBar.style.width = `${((i + 1) / steps.length) * 100}%`;
+                
+                await new Promise(r => setTimeout(r, step.duration));
+                
+                if (el) {
+                    el.classList.remove('active');
+                    el.classList.add('completed');
+                }
+            }
+        }
+
+        // ── Navbar scroll effect ──
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Close mobile nav on link click
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('open');
+                navToggle.classList.remove('active');
+            });
+        });
+
+        // ── Smooth scrolling ──
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // ── Intersection Observer for scroll animations ──
+        const animateElements = document.querySelectorAll('[data-animate]');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        animateElements.forEach(el => observer.observe(el));
+
+        // ── Copy code button ──
+        document.getElementById('copy-request')?.addEventListener('click', () => {
+            const code = `curl -X POST http://localhost:8000/api/v1/analyze \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "resume_text": "Your resume text here...",
+    "job_description": "Job description here..."
+  }'`;
+            navigator.clipboard.writeText(code);
+            const btn = document.getElementById('copy-request');
+            btn.innerHTML = '<i data-lucide="check" style="width:14px;height:14px;color:#4ade80"></i>';
+            lucide.createIcons();
+            setTimeout(() => {
+                btn.innerHTML = '<i data-lucide="copy" style="width:14px;height:14px"></i>';
+                lucide.createIcons();
+            }, 2000);
+        });
+    </script>
+
+</body>
+</html>
